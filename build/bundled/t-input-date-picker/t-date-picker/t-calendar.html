@@ -1,0 +1,572 @@
+<html><head><link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../../bower_components/paper-ripple/paper-ripple.html">
+<link rel="import" href="../../bower_components/paper-styles/color.html">
+<link rel="import" href="../../bower_components/paper-styles/default-theme.html">
+<link rel="import" href="../../bower_components/paper-styles/shadow.html">
+<link rel="import" href="../../bower_components/paper-styles/typography.html">
+<link rel="import" href="../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
+<link rel="import" href="../../bower_components/moment-element/moment-import.html">
+<link rel="import" href="t-date-picker-icons.html">
+
+</head><body><dom-module id="t-calendar">
+  <template>
+    <style>
+      .selectedRange {
+        border-top: 1px solid var(--color-for-calendar-selected-range);
+        border-bottom: 1px solid var(--color-for-calendar-selected-range);
+      }
+      
+      .selectEndBorder .borderDiv {
+        border-top: 1px solid var(--color-for-calendar-selected-range);
+        border-bottom: 1px solid var(--color-for-calendar-selected-range);
+      }
+      
+      .selectStartBorder .borderDiv {
+        margin-left: 51%;
+        border-top: 1px solid var(--color-for-calendar-selected-range);
+        border-bottom: 1px solid var(--color-for-calendar-selected-range);
+      }
+      
+      .selectedRangeSun {
+        border-left: 1px solid var(--color-for-calendar-selected-range);
+        border-top-left-radius: 100%;
+        border-bottom-left-radius: 100%;
+        border-top: 1px solid var(--color-for-calendar-selected-range);
+        border-bottom: 1px solid var(--color-for-calendar-selected-range);
+      }
+      
+      .selectedRangeSat {
+        border-right: 1px solid var(--color-for-calendar-selected-range);
+        border-top-right-radius: 100%;
+        border-bottom-right-radius: 100%;
+        border-top: 1px solid var(--color-for-calendar-selected-range);
+        border-bottom: 1px solid var(--color-for-calendar-selected-range);
+      }
+      
+      .selectfirst {
+        background-image: var(--background-img-for-selected-date);
+        background-repeat: no-repeat;
+        color: white;
+      }
+      
+      .selectlast {
+        background-image: var(--background-img-for-selected-date);
+        background-repeat: no-repeat;
+        -webkit-text-fill-color: white;
+        color: white;
+      }
+      
+      .selectToday {
+        background-image: var(--background-img-for-today-date);
+        background-repeat: no-repeat;
+        color: var(--color-for-calendar-selected-range);
+        background-position: 50%;
+        border-radius: 100%;
+      }
+      
+       :host {
+        display: inline;
+        box-sizing: border-box;
+        padding: 12px 0;
+        position: relative;
+        width: 100%;
+        height: 100%;
+        min-width: 360px;
+        min-height: 160px;
+        color: var(--primary-text-color);
+        -webkit-font-smoothing: antialiased;
+        -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+        --ease-in-sine: cubic-bezier(0.47, 0, 0.745, 0.715);
+        --ease-out-sine: cubic-bezier(0.39, 0.575, 0.565, 1);
+        @apply(--paper-font-body1);
+        @apply(--paper-calendar);
+        overflow: hidden;
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        -khtml-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+        @apply(--paper-calendar);
+      }
+      
+      #calendar {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        @apply(--layout-horizontal);
+      }
+      
+      #months {
+        width: 100%;
+        height: 100%;
+        @apply(--layout-horizontal);
+      }
+      
+      #months.animating .month-nav {
+        opacity: 1;
+      }
+      
+      #months.animating {
+        transition-property: transform, opacity;
+        transition-duration: 0.00000000000001s;
+        -moz-transition-property: transform, none;
+        -moz-transition-duration: 0.0000000001s;
+      }
+      
+      #months.animating.swipe {
+        transition-timing-function: var(--ease-in-sine);
+        --webkit-transition-timing-function: var(--ease-in-sine);
+      }
+      
+      #months.animating.reset {
+        transition-timing-function: var(--ease-out-sine);
+        --webkit-transition-timing-function: var(--ease-out-sine);
+      }
+      
+      .month {
+        height: 100%;
+        @apply(--layout-vertical);
+        @apply(--layout-justified);
+        @apply(--layout-flex);
+        border-left: 1px solid lightgray;
+      }
+      
+      .month-row,
+      .month-nav {
+        width: 250px;
+        height: calc(100%/8);
+        box-sizing: border-box;
+        padding: 0 calc(100%/36);
+      }
+      
+      .month-col {
+        position: relative;
+        @apply(--layout-vertical);
+        @apply(--layout-flex);
+      }
+      
+      .month-nav {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 40px;
+        opacity: 1;
+        @apply(--layout-horizontal);
+        @apply(--layout-center);
+      }
+      
+      .month-nav .col {
+        position: relative;
+        @apply(--layout-vertical);
+        @apply(--layout-center-center);
+      }
+      
+      .month-nav .btn .icon {
+        cursor: pointer;
+        color: gray;
+      }
+      
+      .month-nav .btn .ripple {
+        position: absolute;
+        width: 48px;
+        height: 48px;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+      
+      .month-nav .btn.right {
+        text-align: right;
+      }
+      
+      .month-name {
+        line-height: 24px;
+        vertical-align: middle;
+        text-align: center;
+        font-weight: bold;
+        color: black;
+        @apply(--paper-font-body2);
+        @apply(--layout-horizontal);
+        @apply(--layout-center);
+        @apply(--layout-center-justified);
+        @apply(--layout-flex);
+      }
+      
+      .month-weekdays {
+        color: gray;
+        @apply(--layout-horizontal);
+        @apply(--layout-justified);
+        @apply(--layout-flex);
+      }
+      
+      .month-days {
+        @apply(--layout-horizontal);
+        @apply(--layout-justified);
+        @apply(--layout-flex);
+      }
+      
+      .month-col .day {
+        cursor: default;
+        pointer-events: none;
+        @apply(--layout-fit);
+        @apply(--layout-vertical);
+        @apply(--layout-center-center);
+      }
+      
+      .month-col {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        @apply(--layout-center-center);
+      }
+      
+      .day-item {
+        width: 100%;
+        height: 100%;
+      }
+      
+      .day-item::selection {
+        background: none;
+      }
+      
+      .day-item.selected .day {
+        color: var(--text-primary-color);
+      }
+      
+      .day-item:not([disabled]) {
+        cursor: pointer;
+      }
+      
+      .day-item[disabled] .day {
+        color: var(--text-disabled-color, lightgray);
+      }
+      
+      .day-item.selected.today .day {
+        color: var(--text-primary-color);
+        background-color: white;
+        border: gray solid 1px;
+        border-radius: 100%;
+      }
+      
+      .flex {
+        @apply(--layout-flex);
+      }
+      
+      .flex-5 {
+        @apply(--layout-flex-5);
+      }
+      
+      @media (min-width: 300px) {
+         :host {
+          display: block;
+          box-sizing: border-box;
+          padding: 12px 0;
+          position: relative;
+          width: 100%;
+          height: 100%;
+          min-width: 100%;
+          min-height: 380px;
+          color: var(--primary-text-color);
+          -webkit-font-smoothing: antialiased;
+          -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+          --ease-in-sine: cubic-bezier(0.47, 0, 0.745, 0.715);
+          --ease-out-sine: cubic-bezier(0.39, 0.575, 0.565, 1);
+          @apply(--paper-font-body1);
+          @apply(--paper-calendar);
+          overflow: hidden;
+          -webkit-touch-callout: none;
+          -webkit-user-select: none;
+          -khtml-user-select: none;
+          -moz-user-select: none;
+          -ms-user-select: none;
+          user-select: none;
+          @apply(--paper-calendar);
+        }
+        .month-nav {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          min-width: 100%;
+          opacity: 1;
+          @apply(--layout-horizontal);
+          @apply(--layout-center);
+        }
+        .month-row,
+        .month-nav {
+          width: 100%;
+          min-width: 100%;
+          height: calc(100%/8);
+          box-sizing: border-box;
+          padding: 0 calc(100%/36);
+        }
+        .month-col {
+          position: relative;
+          @apply(--layout-vertical);
+          @apply(--layout-flex);
+        }
+      }
+      
+      @media (max-width: 767px) {
+        .month {
+          min-width: 100%;
+          height: 100%;
+          overflow: auto;
+          @apply(--layout-vertical);
+          @apply(--layout-justified);
+          @apply(--layout-flex);
+          border-left: 1px solid lightgray;
+        }
+        .month-nav {
+          display: none;
+        }
+        .selectfirst {
+          background-position: 50%;
+        }
+        .selectlast {
+          background-position: 50%;
+        }
+        .month-row,
+        .month-nav {
+          height: calc(100%/9);
+        }
+        #calendar {
+          overflow: auto;
+        }
+        #months {
+          display: block;
+          height: 86%;
+        }
+      }
+      
+      @media (min-width: 768px) and (max-width: 1023px) {
+         :host {
+          display: inline;
+          box-sizing: border-box;
+          padding: 12px 0;
+          position: relative;
+          width: 100%;
+          height: 100%;
+          min-width: 300px;
+          min-height: 160px;
+          color: var(--primary-text-color);
+          -webkit-font-smoothing: antialiased;
+          -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+          --ease-in-sine: cubic-bezier(0.47, 0, 0.745, 0.715);
+          --ease-out-sine: cubic-bezier(0.39, 0.575, 0.565, 1);
+          @apply(--paper-font-body1);
+          @apply(--paper-calendar);
+          overflow: hidden;
+          -webkit-touch-callout: none;
+          -webkit-user-select: none;
+          -khtml-user-select: none;
+          -moz-user-select: none;
+          -ms-user-select: none;
+          user-select: none;
+          @apply(--paper-calendar);
+        }
+        .month-nav {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 350px;
+          opacity: 1;
+          @apply(--layout-horizontal);
+          @apply(--layout-center);
+        }
+        .month-row,
+        .month-nav {
+          width: 250px;
+          height: calc(100%/8);
+          box-sizing: border-box;
+          padding: 0 calc(100%/36);
+        }
+        .month-col {
+          position: relative;
+          @apply(--layout-vertical);
+          @apply(--layout-flex);
+        }
+        #monthNav {
+          width: 114%;
+          margin-left: -46px;
+        }
+        .selectfirst {
+          background-position: 50%;
+        }
+        .selectlast {
+          background-position: 50%;
+        }
+      }
+      
+      @media (min-width: 1024px) and (max-width: 1200px) {
+         :host {
+          display: inline;
+          box-sizing: border-box;
+          padding: 12px 0;
+          position: relative;
+          width: 100%;
+          height: 100%;
+          min-width: 300px;
+          min-height: 160px;
+          color: var(--primary-text-color);
+          -webkit-font-smoothing: antialiased;
+          -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+          --ease-in-sine: cubic-bezier(0.47, 0, 0.745, 0.715);
+          --ease-out-sine: cubic-bezier(0.39, 0.575, 0.565, 1);
+          @apply(--paper-font-body1);
+          @apply(--paper-calendar);
+          overflow: hidden;
+          -webkit-touch-callout: none;
+          -webkit-user-select: none;
+          -khtml-user-select: none;
+          -moz-user-select: none;
+          -ms-user-select: none;
+          user-select: none;
+          @apply(--paper-calendar);
+        }
+        .month-nav {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 350px;
+          opacity: 1;
+          @apply(--layout-horizontal);
+          @apply(--layout-center);
+        }
+        .month-row,
+        .month-nav {
+          width: 250px;
+          height: calc(100%/8);
+          box-sizing: border-box;
+          padding: 0 calc(100%/36);
+        }
+        .month-col {
+          position: relative;
+          @apply(--layout-vertical);
+          @apply(--layout-flex);
+        }
+        #monthNav {
+          width: 112%;
+          margin-left: -37px;
+        }
+        .selectfirst {
+          background-position: 50%;
+        }
+        .selectlast {
+          background-position: 50%;
+        }
+      }
+      
+      @media (min-width: 1200px) {
+         :host {
+          display: inline;
+          box-sizing: border-box;
+          padding: 12px 0;
+          position: relative;
+          width: 100%;
+          height: 100%;
+          min-width: 300px;
+          min-height: 160px;
+          color: var(--primary-text-color);
+          -webkit-font-smoothing: antialiased;
+          -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+          --ease-in-sine: cubic-bezier(0.47, 0, 0.745, 0.715);
+          --ease-out-sine: cubic-bezier(0.39, 0.575, 0.565, 1);
+          @apply(--paper-font-body1);
+          @apply(--paper-calendar);
+          overflow: hidden;
+          -webkit-touch-callout: none;
+          -webkit-user-select: none;
+          -khtml-user-select: none;
+          -moz-user-select: none;
+          -ms-user-select: none;
+          user-select: none;
+          @apply(--paper-calendar);
+        }
+        .month-nav {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 350px;
+          opacity: 1;
+          @apply(--layout-horizontal);
+          @apply(--layout-center);
+        }
+        .month-row,
+        .month-nav {
+          width: 250px;
+          height: calc(100%/8);
+          box-sizing: border-box;
+          padding: 0 calc(100%/36);
+        }
+        .month-col {
+          position: relative;
+          @apply(--layout-vertical);
+          @apply(--layout-flex);
+        }
+        #monthNav {
+          width: 112%;
+          margin-left: -37px;
+        }
+        .selectfirst {
+          background-position: 50%;
+        }
+        .selectlast {
+          background-position: 50%;
+        }
+      }
+    </style>
+    <div id="calendar">
+      <div id="months" on-track="_onTrack" class$="{{_contentClass}}" style="width:100%">
+        <template is="dom-repeat" items="{{_months}}" as="month">
+          <div class$="{{_getMonthClass('month', month)}}">
+            <div class="month-row month-name">
+              <span>{{dateFormat(month.date, 'MMMM YYYY', locale)}}</span>
+            </div>
+            <div class="month-row month-weekdays week">
+              <template is="dom-repeat" items="{{_weekdays}}">
+                <div class="month-col layout vertical flex">
+                  <div class="day" id="weekday">{{item.0}}</div>
+                </div>
+              </template>
+            </div>
+            <template is="dom-repeat" items="{{month.weeks}}" as="row">
+              <div class="month-row month-days">
+                <template is="dom-repeat" items="{{row}}">
+                  <div dialog-confirm="" class="month-col">
+                    <div class$="{{_getDayClass('day-item selection', item.date, today, date)}}" disabled$="{{_isDisabled(item.day, item.date, minDate, maxDate)}}" on-tap="_tapDay" date$="{{item.name}}">
+                      <div class="borderDiv" style="width:50%;height:100%"></div>
+                      <div style="width:50%; margin-left:22%" class="day">{{item.day}}</div>
+                    </div>
+                  </div>
+                </template>
+              </div>
+            </template>
+            <div style="display: none" class="month-row month-name nextMonthLabel" id="showMonthName">
+              <span>{{dateFormatMonthName(month.date, 'MMMM YYYY', locale)}}</span>
+            </div>
+          </div>
+        </template>
+      </div>
+      <div id="monthNav" class="month-nav">
+        <div class="flex col self-stretch">
+          <div class="btn" on-tap="_swipePrevMonth">
+            <paper-ripple center="" class="ripple circle"></paper-ripple>
+            <iron-icon class="icon flex" icon="date-picker:chevron-left"></iron-icon>
+          </div>
+        </div>
+        <div class="flex-5"></div>
+        <div class="flex col self-stretch">
+          <div class="btn" on-tap="_swipeNextMonth">
+            <paper-ripple center="" class="ripple circle"></paper-ripple>
+            <iron-icon class="icon flex" icon="date-picker:chevron-right"></iron-icon>
+          </div>
+        </div>
+      </div>
+    </div>
+  </template>
+  <script>!function(){function t(t,e){return t=new Date(t.getTime()),e=new Date(e.getTime()),t.setHours(0,0,0,0),e.setHours(0,0,0,0),(t.getTime()-e.getTime())/864e5}var e=4,i=e*e,a=.5,n=40,s=2,o=1;Polymer({is:"t-calendar",properties:{date:{type:Date,notify:!0,value:function(){return new Date}},showMonthName:{type:Boolean,value:!0},scrollToMonth:{type:Number,value:0},setCheckOut:{type:Number,value:6},locale:{type:String,value:"en",notify:!0,observer:"_localeChanged"},minDate:{type:Date,value:null},maxDate:{type:Date,value:null},currentMonth:{type:Number},currentYear:{type:Number},_contentClass:String,_months:Array,_firstDayOfWeek:Number,checkFirstDayofWeek:String},behaviors:[Polymer.IronResizableBehavior],observers:["_populate(currentYear, currentMonth, locale)"],listeners:{"iron-resize":"_resizeHandler",swiped:"_onSwipe"},ready:function(){this._updateToday(),this.currentMonth=this.date.getMonth()+1,this.currentYear=this.date.getFullYear(),this._transitionEvent=this._whichTransitionEnd()},dateFormat:function(t,e,i){if(!t)return"";var a=moment(t);return a.locale(i||this.locale),a.format(e)},dateFormatMonthName:function(t,e,i){if(!t)return"";var t=t;t.setDate(t.getDate()+31);var a=moment(t);return a.locale(i||this.locale),a.format(e)},_localeChanged:function(t){var e=moment();e.locale(t);for(var i=[],a=0;a<7;a++)i.push(e.weekday(a).format("dd")),0===a&&(this.checkFirstDayOfWeek=e.weekday(a).format("dddd"));this._weekdays=i,this._firstDayOfWeek=e.weekday(0).format("d")},_changeMinDate:function(){if(null===this.minDate&&(this.minDate=new Date),null===this.maxDate&&(this.maxDate=new Date((new Date).setFullYear((new Date).getFullYear()+1))),this.minDate.getFullYear()===this.maxDate.getFullYear())var t=this.maxDate.getMonth()-this.minDate.getMonth();else var t=12-this.minDate.getMonth()+this.maxDate.getMonth();return t},_populate:function(t,e){var i,a,n,s,r,h,u,l=[],c=window.matchMedia("(max-width:767px)");if(c.matches&&(o=this._changeMinDate()),this.minDate&&new Date(t,e,0)<this.minDate)return this.currentYear=this.minDate.getFullYear(),void(this.currentMonth=this.minDate.getMonth()+1);if(this.maxDate&&new Date(t,e-1,1)>this.maxDate)return this.currentYear=this.maxDate.getFullYear(),void(this.currentMonth=this.maxDate.getMonth()+1);for(var d=0;d<=o;d++){n=[[]],s=1,i=new Date(t,e-1+d,1),a=i.getMonth(),u={year:i.getFullYear(),month:i.getMonth()+1,date:new Date(i)};var m=i.getDay()-this._firstDayOfWeek;for(m<0&&(m=7+m),r=0;r<m;r++)n[0].push({day:null,date:null});for(;i.getMonth()===a;)n[0].length&&r%7===0&&n.push([]),h={date:new Date(i.getFullYear(),a,s),name:this.dateFormat(i,"YYYY-MM-DD"),year:t,month:a,day:s},n[n.length-1].push(h),i.setDate(++s),r++;for(;r<42;)r%7===0&&n.push([]),n[n.length-1].push({day:null,date:null}),r+=1;u.weeks=n,l.push(u)}l.length&&(this.set("_months",l),this.async(function(){this._updateSelection(),this._positionSlider()}))},_getDayClass:function(e,i){var a=!0;if(i){if(i<this.today)return e;if(i>this.maxDate)return e;var n=this.domHost.domHost.domHost.querySelector("#start").value,s=this.domHost.domHost.domHost.querySelector("#end").value;void 0===n&&(a=!1),0===t(i,this.today)&&void 0===n?(e+=" selectToday",this.async(function(){this._updateSelection()})):0===t(i,this.today)&&0!=t(n,this.today)&&(e+=" selectToday",this.async(function(){this._updateSelection()}));var o,r=!1;if(void 0===n&&(r=!0,n=this.today),n.setHours(0,0,0,0),void 0===s?o=n:(o=s,o.setHours(0,0,0,0)),i.setHours(0,0,0,0),i.getTime()===n.getTime()&&this.today.getTime()!=n.getTime()&&(e+=" selected",this.async(function(){this._updateSelection()})),i>n&&i>o&&this.domHost.domHost.LastStartDate===n)return e;var h=this._checkDayName(i),u=this._checkFirstDayofWeek(i),l=this._checkFirstDayofMonth(i),c=this._checkLastDayofMonth(i),d=this._checkLastDayofWeek(i);i>n&&i<o&&h!=u&&i.getTime()!=l.getTime()&&(e+=" selectedRange",this.async(function(){this._updateSelection()})),i.getTime()===n.getTime()&&0==r&&(e+=" selectfirst",h!=d&&i.getTime()!=c.getTime()&&(e+=" selectStartBorder"),this.async(function(){this._updateSelection()})),o!=n&&i.getTime()===o.getTime()&&(e+=" selectlast",i.getTime()!=l.getTime()&&h!=u&&(e+=" selectEndBorder"),this.async(function(){this._updateSelection()})),i>=n&&i<o&&(h===u||i.getTime()===l.getTime()?e+=" selectedRangeSun":h!==d&&i.getTime()!==c.getTime()||(e+=" selectedRangeSat"),h===d&&i.getTime()===l.getTime()&&(e+=" selectedRangeSat"),h===u&&i.getTime()===c.getTime()&&(e+=" selectedRangeSat"));var m=this.domHost.domHost.domHost.querySelector("#start").value,g=this.domHost.domHost.domHost.querySelector("#end").value;if(o===n||void 0===g)if(void 0===m);else{var _=new Date(m);_.setDate(_.getDate()+this.domHost.domHost.domHost.option.date.defaultStayDuration);var f=this.maxDate;f.setHours(0,0,0,0),_>f&&(_=f);var y=new Date(_);m.setHours(0,0,0,0),y.setHours(0,0,0,0),i.getTime()===y.getTime()&&(e+=" selectlast",this.async(function(){this._updateSelection()})),i>m&&i<y&&h!=u&&i.getTime()!=l.getTime()&&(e+=" selectedRange",this.async(function(){this._updateSelection()})),i.getTime()===m.getTime()&&(e+=" selectfirst",this.async(function(){this._updateSelection()}));var s=this.domHost.domHost.domHost.querySelector("#end");s.value=y}var f=this.maxDate;f.setHours(0,0,0,0),e=this._removeDuplicateWord(e),i.getTime()===n.getTime()&&(h===d?(e=e.replace("selectedRange",""),e=e.replace("selectedRangeSat","")):i.getTime()===c.getTime()&&(e=e.replace("selectedRange",""),e=e.replace("selectedRangeSat",""))),i.getTime()===n.getTime()&&i.getTime()===f.getTime()&&(e=e.replace("selectlast",""),e=e.replace("selectedRange","")),i.getTime()!==this.today.getTime()||a||(e=e.replace("selectedRange","")),i.getTime()===n.getTime()&&h===u&&(e=e.replace("selectedRangeSun","")),i.getTime()===n.getTime()&&i.getTime()===l.getTime()&&(e=e.replace("selectedRangeSun","")),i.getTime()===n.getTime()&&i.getTime()===o.getTime()&&(e=e.replace("selectStartBorder",""),e=e.replace("selectEndBorder",""))}return e},_removeDuplicateWord:function(t){var e=t.split(" ").filter(function(t,e,i){return e==i.indexOf(t)}).join(" ");return e},_checkDayName:function(t){var e=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"],i=new Date(t),a=e[i.getDay()];return a},_checkLastDayofMonth:function(t){var e=new Date(t.getFullYear(),t.getMonth()+1,0);return e},_checkFirstDayofMonth:function(t){var e=new Date(t);return e.setMonth(e.getMonth(),1),e.setHours(0,0,0,0),e},_checkFirstDayofWeek:function(t){var e=this.querySelector("#weekday").textContent;return"M"===e?"Monday":"Sunday"},_checkLastDayofWeek:function(t){var e=this.querySelector("#weekday").textContent;return"M"===e?"Sunday":"Saturday"},_isDisabled:function(t,e){return!t||!this._withinValidRange(e)},_getMonthClass:function(t,e){return t+" month-"+e.year+"-"+e.month},_onTrack:function(t){var e=t.detail.dx,o=t.detail.dy,r=Math.abs(e),h=Math.abs(o),u=this._containerWidth;switch(t.detail.state){case"start":this._trackStartTime=(new Date).getTime(),this._startPos=this._currentPos,this._moveQueue=[];break;case"track":this._moveQueue.length>=4&&this._moveQueue.shift(),this._moveQueue.push(t);var l=e*e+o*o;if(!this._gesture&&l>i&&(this._gesture=r>h?"pan-x":"pan-y"),"pan-x"!==this._gesture)return;this._dragging=!0;var c=u*(this._months.length-1),d=this._startPos+e;if(d>0||d<=-c+u){isNaN(parseInt(this._resistStart,10))&&(this._resistStart=r);var m,g,_=r-this._resistStart,f=n;m=_>u?1:_/u,g=f*(1-Math.pow(1-m,s)),d=0}else this._resistStart=null;this._translateX(d);break;case"end":this._resistStart=null;var y=(this._getMonthIdx(this._startPos),this._getMonthIdx(this._currentPos),this._getMonthIdx(this._startPos),this._getMonthIdx(this._currentPos),this._getFastestMovement(t).v);if(mq){if(this._resistStart||"pan-y"!==this._gesture)this._translateX(this._startPos,"reset");else if(y>a){var v=u-r,p=v/y;p>300&&(p=300),this._transitionDuration=p}this._gesture=null}}},_swipePrevMonth:function(){var t=this.domHost.domHost.domHost.querySelector("#start"),e=(this.domHost.domHost.domHost.querySelector("#end"),this.domHost.domHost.id);"start"===e&&this.today.getMonth()+1===this.currentMonth&&this.today.getFullYear()===this.currentYear?this._populate(this.today.getFullYear(),this.today.getMonth()+1):"end"===e&&t.value.getMonth()+1===this.currentMonth&&t.value.getFullYear()===this.currentYear?this._populate(t.value.getFullYear(),t.value.getMonth()+1):this.fire("swiped",{direction:"right"})},_swipeNextMonth:function(){(!this.maxDate||this.currentYear<this.maxDate.getFullYear()||this.currentMonth<this.maxDate.getMonth()+1)&&this.fire("swiped",{direction:"left"})},_getMonthIdx:function(t){var e=this._containerWidth,i=Math.floor((-t+e/2)/e);return i<0?0:i},_translateX:function(t,e,i){isNaN(parseInt(t,10)),this._currentPos=t,e&&(this._transitionDuration&&(this.$.months.style.transitionDuration=this._transitionDuration+"ms"),this._once(this._transitionEvent,function(){this.set("_contentClass",""),this.$.months.style.transitionDuration="",this._transitionDuration=null,this.$.monthNav.style.removeProperty("opacity"),i&&i()}.bind(this),this.$.months),this.set("_contentClass","animating "+e),this.$.monthNav.style.removeProperty("opacity"),this._once("touchstart",function(){})),window.requestAnimationFrame(function(){if(!e){var i=this._containerWidth/2,a=Math.abs(this._startPos-t),n=100*(1-a/i);n=(100-Math.pow(n,2))/100/100;var s=Math.abs(parseFloat(n).toFixed(2));this.$.monthNav.style.opacity=s}this.transform("translateX("+t+"px)",this.$.months)}.bind(this))},_getFastestMovement:function(t){for(var e,i,a,n,s,o=this._moveQueue.length,r=0,h=0,u=0,l=0;l<o&&(s=this._moveQueue[l]);l++)e=t.timeStamp-s.timeStamp,i=(t.detail.x-s.detail.x)/e,a=(t.detail.y-s.detail.y)/e,n=i*i+a*a,n>u&&(r=i,h=a,u=n);return{x:r,y:h,v:Math.sqrt(u)}},_onSwipe:function(t){"right"===t.detail.direction?this._prevMonth():this._nextMonth()},_once:function(t,e,i){function a(){i.removeEventListener(t,a),e.apply(null,arguments)}i=i||this,i.addEventListener(t,a)},_incrMonth:function(t){var e=new Date(this.currentYear,this.currentMonth-1+t),i=e.getFullYear(),a=e.getMonth()+1;this._monthWithinValidRange(i,a)&&(this.currentYear=i,this.currentMonth=a)},_prevMonth:function(){this._incrMonth(-1)},_nextMonth:function(){this._incrMonth(1)},_tapDay:function(t){var e,i=this.domHost.domHost.domHost.querySelector("#start"),a=this.domHost.domHost.domHost.querySelector("#end"),n=t.model.item.date;if(!this._withinValidRange(n))return t.preventDefault(),void t.stopPropagation();var s=t.model.item;if(s.year=n.getFullYear(),e=s.date.getTime()==this._checkLastDayofMonth(s.date).getTime()?new Date(s.date.getTime()):new Date(this.date.getTime()),e.setDate(s.day),e.setYear(s.year),e.setMonth(s.month),this.date=e,"start"===this.domHost.domHost.id)i.value=e,mq?this.async(function(){a.minDate=i.value,a._showDialog()}):(a.minDate=i.value,a._showDialog()),i.value>a.value&&(a.value=e);else if("end"===this.domHost.domHost.id){if(s.date.getTime()===i.value.getTime())return t.preventDefault(),void t.stopPropagation();a.value=e,mq&&t.stopPropagation(),i.value.getMonth()===a.value.getMonth()?this._populate(a.value.getFullYear(),a.value.getMonth()+1):this._populate(a.value.getFullYear(),a.value.getMonth())}var o=!!document.documentMode;o&&(this.domHost.domHost.querySelector("#input").querySelector("#input").focus(),this.domHost.domHost.querySelector("#input").querySelector("#input").blur())},_isValidDate:function(t){return t&&t.getTime&&!isNaN(t.getTime())},_withinValidRange:function(t){return!!this._isValidDate(t)&&((!this.minDate||t>=this.minDate)&&(!this.maxDate||t<=this.maxDate))},_monthWithinValidRange:function(t,e){var i=new Date(t,e-1,1),a=new Date(t,e,0);return this._withinValidRange(i)||this._withinValidRange(a)},_positionSlider:function(){if(this._months&&this._containerWidth){12*this.currentYear+this.currentMonth-(12*this._months[0].year+this._months[0].month);this._translateX(0*this._containerWidth)}},_updateSelection:function(){this.async(function(){var t=this.$$(".selected");if(t){t.style.height="",t.style.width="";var e=t.parentElement.offsetWidth,i=t.parentElement.offsetHeight;t.style.flex="",window.requestAnimationFrame(function(){e>0&&e<i?t.style.height=i+"px":i>0&&(t.style.width=e+"px")})}})},_resizeHandler:function(){this.async(function(){this._containerWidth=this.$.calendar.offsetWidth,this._updateSelection()})},_getDayName:function(t){return t.getFullYear()+"-"+(t.getMonth()+1)+"-"+t.getDate()},_updateToday:function(){this.today=new Date,this.today.setHours(0,0,0,0)},_whichTransitionEnd:function(){var t={WebkitTransition:"webkitTransitionEnd",MozTransition:"transitionend",OTransition:"oTransitionEnd otransitionend",transition:"transitionend"};for(var e in t)if(void 0!==this.style[e])return t[e]}})}();</script>
+</dom-module></body></html>

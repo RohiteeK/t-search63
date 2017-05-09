@@ -1,0 +1,118 @@
+<html><head><link rel="import" href="bower_components/polymer/polymer.html">
+<link rel="import" href="bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="bower_components/paper-item/paper-item.html">
+<link rel="import" href="bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="bower_components/iron-media-query/iron-media-query.html">
+<link rel="import" href="bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="t-input-date-picker/t-input-date-picker.html">
+<link rel="import" href="t-search-style.html">
+<link rel="stylesheet" href="t-search-style.css">
+<link rel="import" href="choice-card.html">
+
+
+
+
+
+</head><body><dom-module id="t-search">
+  <template>
+    <style include="t-search-style">
+
+    </style>
+    <br>
+
+    <iron-media-query query="(max-width: 380px)" query-matches="{{smallMobileView}}"></iron-media-query>
+    <iron-media-query query="(min-width: 380px) and (max-width:767px)" query-matches="{{mobileView}}"></iron-media-query>
+    <iron-media-query query="(min-width: 768px) and (max-width:1023px)" query-matches="{{tabletView}}"></iron-media-query>
+    <iron-media-query query="(min-width: 1024px) and (max-width: 1200px)" query-matches="{{desktopView}}"></iron-media-query>
+    <iron-media-query query="(min-width: 1200px)" query-matches="{{largeDesktopView}}"></iron-media-query>
+    <iron-media-query query="(max-width: 600px)" query-matches="{{mediumTablet}}"></iron-media-query>
+    <iron-media-query query="(max-width: 767px)" query-matches="{{mobilePhone}}"></iron-media-query>
+
+    <div class="item" smallmobileview$="{{smallMobileView}}" desktopview$="{{desktopView}}" tabletview$="{{tabletView}}" mobileview$="{{mobileView}}" largedesktopview$="{{_largeDesktopViewOther(largeDesktopView)}}" largedesktopviewie$="{{_largeDesktopViewIE(largeDesktopView)}}">
+
+
+      <div class="container-fluid">
+        <div class="row">
+
+          
+
+          <app-toolbar hidden$="{{showToolbar}}" id="toolbarRoom" class="row-lg-height row-md-height row-sm-height row-xs-height">
+            <iron-icon icon="icons:arrow-back" id="backButtonRoom" on-tap="_showMainToolbar"></iron-icon>
+            <paper-button toggles="" id="buttons" on-tap="_doneRoomCard">Done</paper-button>
+          </app-toolbar>
+
+          
+
+          <app-toolbar hidden$="{{showDatePicker}}" id="toolbarDatePicker" class="row-lg-height row-md-height row-sm-height row-xs-height">
+            <div id="selectDate">
+              <iron-icon icon="icons:arrow-back" id="backButtonDatepicker" on-tap="_showDateToolbar"></iron-icon>
+              <span class="dateSpan">Select Dates</span>
+              <paper-button toggles="" id="buttons" on-tap="_doneDatePicker">Done</paper-button>
+            </div>
+          </app-toolbar>
+
+
+          
+
+          <app-toolbar hidden="" class="row-lg-height row-md-height row-sm-height row-xs-height" id="toolbarAutoComplete">
+            <iron-icon id="backButtonAutoSuggest" icon="icons:arrow-back" on-tap="_showaMainToolbar"></iron-icon>
+            <div>
+              <iron-icon id="clearButton" icon="close" on-click="_clearInput"></iron-icon>
+            </div>
+          </app-toolbar>
+
+
+          
+          <app-toolbar id="mainToolbar" class="row-lg-height row-md-height row-sm-height row-xs-height">
+            <form is="iron-form" id="form" method="post" action="/form/handler">
+              <div required="" auto-validate="" class="col-lg-5 col-md-5 col-sm-12 col-xs-12" id="deskinput">
+                <t-autosuggest required="" auto-validate="" id="location" name="location" selected-item="{{location}}" query-params="token={{tokenResponse.authenticationToken}}" label="Enter city, airport, address or point of interest" token-param="formattedAddress" data-url$="{{dataUrl}}">
+                </t-autosuggest>
+              </div>
+
+
+              <div id="start1" class="col-lg-1 col-md-1 col-sm-3 col-xs-6">
+                <t-input-date-picker required="" auto-validate="" error-message="Enter check in" class="suggestions" date-format="MM/DD/YYYY" id="start" label="Check in" min-date="[[minDatetoday]]" max-date="[[checkInmaxDate]]" on-keydown="_keypress" on-tap="_openDatePicker" on-focus="this.blur()">
+                </t-input-date-picker>
+              </div>
+
+              <div id="end1" class="col-lg-1 col-md-1 col-sm-3 col-xs-6">
+                <t-input-date-picker required="" auto-validate="" error-message="Enter check out" class="suggestions" id="end" label="Check out" date-format="MM-DD-YYYY" on-keydown="_keypress" max-date="[[checkOutmaxDate]]" on-tap="_openDatePicker" on-focus="this.blur()">
+                </t-input-date-picker>
+              </div>
+
+              <div class="col-lg-3 col-md-3 col-sm-4 col-xs-12" id="travellField">
+                <paper-dropdown-menu on-tap="_dismisCard" required="" auto-validate="" error-message="Required Field" class="suggestions" id="deskinput1" readonly="" on-keydown="_tabPress">
+                  <paper-listbox class="dropdown-content" id="listbox" selected="{{choice}}">
+                    <paper-item class="trvellerItem" id="adult1Room1" count-adult="1" count-room="1">1 Adult in 1 Room</paper-item>
+                    <paper-item class="trvellerItem" id="adult2Room1" count-adult="2" count-room="1">2 Adults in 1 Room</paper-item>
+                    <paper-item class="trvellerItem" id="adult3Room1" count-adult="3" count-room="1">3 Adults in 1 Room</paper-item>
+                    <paper-item class="trvellerItem" id="adult4Room1" count-adult="4" count-room="1">4 Adults in 1 Room</paper-item>
+                    <paper-item class="trvellerItem" id="adult5Room1" count-adult="1,1" count-room="2">2 Adults in 2 Rooms</paper-item>
+                    <paper-item on-tap="_openChildForm" id="needRoom" class="trvellerItem">Need more rooms or have children? </paper-item>
+                  </paper-listbox>
+                </paper-dropdown-menu>
+                <input id="travellerInput" is="iron-input" type="hidden" bind-value="[[choice]]">
+              </div>
+
+              <div id="Button" class="col-lg-1 col-md-1 col-sm-2 col-xs-12 text-center">
+                <paper-button on-tap="_submitSearchFormInput" class="button" id="button">Search</paper-button>
+              </div>
+
+            </form>
+          </app-toolbar>
+        </div>
+      </div>
+    </div>
+    <div class="item" id="card" smallmobileview$="{{smallMobileView}}" mobileview$="{{mobileView}}" tabletview$="{{tabletView}}" desktopview$="{{desktopView}}" largedesktopview$="{{largeDesktopView}}">
+      <paper-card hidden$="{{showTravellersCard}}" id="paperCard" class="paperCard">
+        <div>
+          <choice-card id="choiceCard"></choice-card>
+        </div>
+      </paper-card>
+    </div>
+  </template>
+
+  <script>var mqu=!1,mq=!1,mql=!1,doneStartDate,doneEndDate;Polymer({is:"t-search",properties:{dataUrl:String,queryParams:String,tokenResponse:String,showTravellersCard:{type:Boolean,value:!0},mediumTablet:{type:Boolean,value:!1},tabletView:{type:Boolean,value:!1},mobilePhone:{type:Boolean,value:!1},showToolbar:{type:Boolean,value:!0},showDatePicker:{type:Boolean,value:!0},location:String,minDatetoday:{value:function(){var e=new Date;return e.setDate(e.getDate()-1),e}},choice:{type:String,value:0},option:{type:Object},doneRoomCardOutput:{type:String},doneRoomCard:{type:Boolean,value:!1},doneDatePicker:{type:Boolean,value:!1},checkInmaxDate:{value:function(){var e=12,t=new Date;return t.setMonth(t.getMonth()+e),t}},checkOutmaxDate:{value:function(){var e=3,t=new Date;return t.setMonth(t.getMonth()+e),t}},dataCity:{type:Array},travellersFinalData:{type:Array}},_keypress:function(e){var t=new RegExp("^[a-zA-Z0-9]+$"),o=String.fromCharCode(e.charCode?e.charCode:e.which);if(t.test(o))return e.preventDefault(),!1},_largeDesktopViewIE:function(e){var t=!!document.documentMode;return t&&e},_largeDesktopViewOther:function(e){var t=!!document.documentMode;return!t&&e},_dismisCard:function(){var e=this.$$("#deskinput1");e.label="Travellers";var t=Polymer.dom(this.$.paperCard).node;t.style.display="none";var o=this.$$("#needRoom");o.textContent="Need more rooms or have children?",this.querySelector("#deskinput1").blur()},_tabPress:function(e){if(38==e.keyCode||40==e.keyCode){var t=Polymer.dom(this.$.paperCard).node;t.style.display="none";var o=this.$$("#needRoom");o.textContent="Need more rooms or have children?"}},_openDatePicker:function(){if(mq){this.$.end.invalid=!1,Polymer.dom(this.$.toolbarDatePicker).node.style.display="block",Polymer.dom(this.$.deskinput).node.style.display="none",Polymer.dom(this.$.travellField).node.style.display="none",Polymer.dom(this.$.Button).node.style.display="none",Polymer.dom(this.$.mainToolbar).node.style.height="0px",Polymer.dom(this.$.mainToolbar).node.style.minHeight="0px",Polymer.dom(this.$.start1).node.classList.add("divColorofDatepicker"),Polymer.dom(this.$.end1).node.classList.add("divColorofDatepicker"),Polymer.dom(this.$.mainToolbar).node.classList.add("divColorofDatepicker");var e=Polymer.dom(this.$.start).node,t=Polymer.dom(this.$.end).node;e.children[0].style.textAlign="center",t.children[0].style.textAlign="center",e.querySelector("#input").querySelector("#input").style.color="black",t.querySelector("#input").querySelector("#input").style.color="black"}(this.showTravellersCard=!0)&&(this.showTravellersCard=!this.showTravellersCard),mq&&1==this.showDatePicker&&(this.showDatePicker=!this.showDatePicker)},_openChildForm:function(e){mq&&(this.querySelector("#start1").style.display="none",this.querySelector("#end1").style.display="none",this.querySelector("#deskinput").style.display="none",this.querySelector("#deskinput1").style.display="none",this.querySelector("#Button").style.display="none"),this.$.needRoom.textContent="1 Adult in 1 Room";var t=Polymer.dom(this.$.paperCard).node;t.style.display="block",(this.showTravellersCard=!0)&&(this.showTravellersCard=!this.showTravellersCard),t.style.visibility="";var o=Polymer.dom(this.$.toolbarRoom).node;o.style.display="block";var r=this.querySelector("#choiceCard").querySelector("#choiceRoom");this.choice=5,r._calResultOfRoom(),mq&&1==this.showToolbar&&(this.showToolbar=!this.showToolbar),o.style.visibility="",mq&&this.querySelector("#toolbarRoom")},_doneRoomCard:function(){this.doneRoomCard=!0,this._styleForBackToMainToolbar();var e=this.querySelector("#choiceCard"),t=e._doneRoom();this.querySelector("#menuButton").querySelector("#input").value=this.doneRoomCardOutput,1==t&&(Polymer.dom(this.$.toolbarRoom).node.style.display="none",this.querySelector("#paperCard").style.display="none")},_styleForBackToMainToolbar:function(){this.querySelector("#start1").style.display="block",this.querySelector("#end1").style.display="block",this.querySelector("#deskinput").style.display="block",this.querySelector("#deskinput1").style.display="block",this.querySelector("#Button").style.display="block"},_doneDatePicker:function(){this.doneDatePicker=!0;Polymer.dom(this.$.start).node.value,Polymer.dom(this.$.end).node.value;this._showDateToolbarFun(),doneStartDate=this.querySelector("#start").value,doneEndDate=this.querySelector("#end").value},_showMainToolbar:function(){mq&&this._styleForBackToMainToolbar();var e=this.$$("#needRoom");e.textContent="Need more rooms or have children?",this.showTravellersCard=!0,this.showToolbar=!0,Polymer.dom(this.$.toolbarDatePicker).node.style.display="none",Polymer.dom(this.$.deskinput).node.style.display="block",Polymer.dom(this.$.deskinput1).node.style.display="block",Polymer.dom(this.$.button).node.style.display="block",Polymer.dom(this.$.start1).node.classList.add("colorOfToolbarAtRuntime"),Polymer.dom(this.$.end1).node.classList.add("colorOfToolbarAtRuntime"),Polymer.dom(this.$.mainToolbar).node.classList.add("colorOfToolbarAtRuntime");var t=this.querySelector("#deskinput1").querySelector("#menuButton").domHost.querySelector("#input");0==this.doneRoomCard&&null==this.doneRoomCardOutput?t.value="1 Adult in 1 Room":1==this.doneRoomCard&&void 0==this.doneRoomCardOutput?t.value="1 Adult in 1 Room":null!=this.doneRoomCardOutput&&(t.value=this.doneRoomCardOutput)},_showDateToolbar:function(){this._showDateToolbarFun(),0==this.doneDatePicker&&null==doneStartDate&&null==doneEndDate?(this.querySelector("#start").value=void 0,this.querySelector("#end").value=void 0):null!=doneStartDate&&null!=doneEndDate&&(this.querySelector("#start").value=doneStartDate,this.querySelector("#end").value=doneEndDate),this.querySelector("#end").querySelector(".underline").style.border="none"},_showDateToolbarFun:function(){this.showTravellersCard=!0,this.showToolbar=!0,Polymer.dom(this.$.toolbarDatePicker).node.style.display="none",Polymer.dom(this.$.deskinput).node.style.display="block",Polymer.dom(this.$.travellField).node.style.display="block",Polymer.dom(this.$.Button).node.style.display="block",Polymer.dom(this.$.start1).node.classList.remove("divColorofDatepicker"),Polymer.dom(this.$.end1).node.classList.remove("divColorofDatepicker"),Polymer.dom(this.$.mainToolbar).node.classList.remove("divColorofDatepicker"),Polymer.dom(this.$.start1).node.classList.add("colorOfToolbarAtRuntime"),Polymer.dom(this.$.end1).node.classList.add("colorOfToolbarAtRuntime"),Polymer.dom(this.$.mainToolbar).node.classList.add("colorOfToolbarAtRuntime");var e=Polymer.dom(this.$.start).node,t=Polymer.dom(this.$.end).node;e.children[0].style.textAlign="",t.children[0].style.textAlign="",e.querySelector(".unfocused-line").style.display="block",t.querySelector(".unfocused-line").style.display="block",e.querySelector("#labelAndInputContainer").style.marginRight="",t.querySelector("#labelAndInputContainer").style.marginRight="",e.querySelector("#input").querySelector("#input").style.color="white",t.querySelector("#input").querySelector("#input").style.color="white"},_showaMainToolbar:function(){this.showTravellersCard=!0,this.showToolbar=!0,Polymer.dom(this.$.toolbarAutoComplete).node.style.display="none",this._styleForBackToMainToolbar(),this.querySelector("#travellField").style.display="block",this.querySelector("#dropBox").style.display="none"},_clearInput:function(){var e=this.querySelector("#spanAutoId");e.value="",e.focus();for(var t=this.querySelector("#dropBox");t.hasChildNodes();)t.removeChild(t.lastChild);var o=this.querySelector("#toolbarAutoComplete"),r=domCreate("ul");o.style.display="block",o.hidden=!1;o.childNodes[2];t.appendChild(r),attrClass(r,"ulClassMobile")},_submitSearchFormInput:function(e){var t=[];t[0]=this.querySelector("#autoSuggest").value,t[1]=this.querySelector("#start").value,t[2]=this.querySelector("#end").value,t[3]=this.querySelector("#menuButton").querySelector("#input").value;for(var o=[],r=0;r<4;r++)o[r]=t[r];if(""==o[0]&&void 0==o[1]&&void 0==o[2])this.querySelector("#autoInput").invalid=!0,this.$.start.invalid=!0,this.$.end.invalid=!0,this.$.end.querySelector("#paper-input-add-on-2").style.width="123%",this.$.start.querySelector("#paper-input-add-on-1").style.width="123%";else if(""==o[0]&&void 0==o[1])this.querySelector("#autoInput").invalid=!0,this.$.start.invalid=!0,this.$.start.querySelector("#paper-input-add-on-1").style.width="123%";else if(void 0==o[1]&&void 0==o[2])this.$.start.invalid=!0,this.$.end.invalid=!0,this.$.end.querySelector("#paper-input-add-on-2").style.width="123%",this.$.start.querySelector("#paper-input-add-on-1").style.width="123%";else if(""==o[0])this.querySelector("#autoInput").invalid=!0;else if(void 0==o[1])this.$.start.invalid=!0,this.$.start.querySelector("#paper-input-add-on-1").style.width="123%";else{var l=this.querySelector("#choiceCard");if(this.choice>=0&&this.choice<=4)for(var i=this.querySelector("#choiceCard").roomCount,r=0;r<i;r++)this.querySelectorAll("#choiceRoom")[r].querySelector("#child").querySelector("#listBox").selected=0;var a=l._doneRoom();if(1==a){var s=this.$.button;s.textContent="searching";var n={},d=[];d[0]=this.dataCity;var u={};u.id=d[0].id,u.name=d[0].name,u.geoCode=d[0].geoCode,u.type=d[0].type,u.code=d[0].code,u.formattedAddress=d[0].formattedAddress,d[1]=this.querySelector("#start").querySelector("#input").value,d[2]=this.querySelector("#end").querySelector("#input").value,d[3]=this.travellersFinalData,JsonData1=d[3];for(var h={},y={},c={},r=0;r<JsonData1.length;r++){var m=JsonData1[r];m=m.replace("[[",""),m=m.replace("]]","");var p=m.split("],[");h[r]={},y=new Object,c=new Object;var v=p[0],q=v.split(",");y.Quantity=parseInt(q[0].replace(/"/g,"")),y.Type=q[1].replace(/"/g,""),y.Age=q[2].replace(/"/g,"");var S=p[1],b=S.split(",");c.Quantity=parseInt(b[0].replace(/"/g,"")),c.Type=b[1].replace(/"/g,""),c.Age="";for(var $=2;$<b.length;$++)""!=c.Age&&(c.Age=c.Age+","),c.Age=c.Age+b[$].replace(/"/g,"");h[r].Adult=y,h[r].children=c}return n.destination=u,n.checkInDate=d[1],n.checkOutDate=d[2],n.rooms=h,n.type="Hotel",console.log(n),!1}this._openChildForm(e)}},ready:function(){console.log(this.option),mqu=this.mediumTablet,mq=this.mobilePhone,mql=this.tabletView;var e,t=this.$$("#start"),o=this.$$("#end");t.addEventListener("value-changed",function(){window.setTimeout(function(){startDate=new Date,startDate.setDate(startDate.getDate()-1),t.minDate=startDate,e=t.value,void 0!=e&&(e.setHours(0,0,0,0),e.setDate(e.getDate())),t.value>o.value&&(o.value=e)})});var r=this.$$("#deskinput1");if(r.querySelector("#input").style.color="lightgray",mql){var l=this.$$("#deskinput1").children[1].children[1];l.style.width="177%"}}});</script>
+</dom-module></body></html>

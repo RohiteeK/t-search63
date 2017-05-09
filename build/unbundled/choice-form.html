@@ -1,0 +1,215 @@
+<html><head><link rel="import" href="bower_components/polymer/polymer.html">
+<link rel="import" href="bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="bower_components/paper-item/paper-item.html">
+
+
+
+</head><body><dom-module id="choice-form">
+    <template>
+        <style>
+             :host {
+                display: block;
+            }
+            
+            .age {
+                color: silver;
+                font-size: 11px;
+                font-family: Roboto;
+            }
+            
+            #size {
+                font-size: 11px;
+                color: silver;
+                font-family: Roboto;
+            }
+            
+            #listBox {
+                width: 60px;
+                position: relative;
+                overflow-x: none;
+            }
+            
+            @media (min-width:1024px) and (max-width:2200px) {
+                #Adult {
+                    width: 16%;
+                    float: left;
+                    float: clear;
+                    margin-top: -12px;
+                    margin-left: 2%;
+                }
+                .childs {
+                    width: 16%;
+                    float: left;
+                    margin-left: 2%;
+                    float: clear;
+                    margin-top: -12px;
+                }
+                .childs1 {
+                    width: 18%;
+                    float: left;
+                    margin-left: 2%;
+                    float: clear;
+                    margin-top: -12px;
+                }
+                .container1 {
+                    width: 100%;
+                    margin-left: 5px;
+                }
+            }
+            
+            @media (min-width:600px) and (max-width:1024px) {
+                #Adult {
+                    width: 16%;
+                    float: left;
+                    float: clear;
+                    margin-top: -12px;
+                    margin-left: 2%;
+                }
+                .childs {
+                    width: 16%;
+                    float: left;
+                    margin-left: 2%;
+                    float: clear;
+                    margin-top: -12px;
+                }
+                .childs1 {
+                    width: 18%;
+                    float: left;
+                    margin-left: 2%;
+                    float: clear;
+                    margin-top: -12px;
+                }
+                .container1 {
+                    width: 100%;
+                    margin-left: 5px;
+                }
+            }
+            
+            @media (max-width: 600px) {
+                .container1 {
+                    width: 100%;
+                    margin-left: 5px;
+                }
+                #Adult {
+                    width: 40%;
+                    float: left;
+                    float: clear;
+                }
+                .childs {
+                    width: 40%;
+                    float: left;
+                    margin-left: 18px;
+                    float: clear;
+                }
+                .childs1 {
+                    width: 30%;
+                    float: left;
+                    margin-left: 4px;
+                    float: clear;
+                }
+            }
+            
+            @media screen and (-ms-high-contrast: active),
+            (-ms-high-contrast: none) {
+                #Adult {
+                    width: 70px;
+                    float: left;
+                    margin-left: 5px;
+                }
+                .childs {
+                    width: 70px;
+                    float: left;
+                    margin-left: 10px;
+                }
+                .childs1 {
+                    width: 90px;
+                    float: left;
+                    margin-left: 10px;
+                }
+                .inputAdultCount {
+                    width: 70px;
+                    margin-left: 10px;
+                    float: left;
+                }
+                .inputChildCount {
+                    width: 70px;
+                    margin-left: 10px;
+                    float: left;
+                }
+                .ageOfChild {
+                    width: 90px;
+                    margin-left: 10px;
+                    float: left;
+                }
+                #size {
+                    font-size: 12px;
+                    width: 70px;
+                    margin-left: 10px;
+                    color: silver;
+                }
+                .age {
+                    font-size: 12px;
+                    margin-left: 5px;
+                    font-family: Roboto;
+                }
+            }
+        </style>
+        <div class="container1">
+            <form is="iron-form" id="form" method="post" action="/form/handler">
+                <div id="Adult">
+                    <paper-dropdown-menu on-tap="_removeValid" label="Adults" id$="adult{{_displayId()}}" class="inputAdultCount" required="" auto-validate="" error-message="Enter" on-iron-select="_calResultOfRoom">
+                        <paper-listbox id="listBox" class="dropdown-content" selected="{{countAdult}}">
+                            <paper-item>1</paper-item>
+                            <paper-item>2</paper-item>
+                            <paper-item>3</paper-item>
+                            <paper-item>4</paper-item>
+                            <paper-item>5</paper-item>
+                        </paper-listbox>
+                    </paper-dropdown-menu>
+                    <div id="size">(12+ Years)</div>
+                    <input is="iron-input" type="hidden" bind-value="[[countAdult]]">
+                </div>
+
+                <div class="childs">
+                    <paper-dropdown-menu label="Children" id="child" on-iron-select="_onCount" class="inputChildCount" required="" auto-validate="" error-message="Enter Child Count">
+                        <paper-listbox id="listBox" class="dropdown-content" selected="{{countChildren}}">
+                            <paper-item>0</paper-item>
+                            <paper-item>1</paper-item>
+                            <paper-item>2</paper-item>
+                            <paper-item>3</paper-item>
+                            <paper-item on-tap="_scrollDown">4</paper-item>
+                            <paper-item on-tap="_scrollDown">5</paper-item>
+                        </paper-listbox>
+                    </paper-dropdown-menu>
+                    <div id="size">(0-11 Years)</div>
+                    <input is="iron-input" type="hidden" bind-value="[[countChildren]]">
+                </div>
+
+                <template is="dom-repeat" items="{{ children }}">
+                    <div class="childs1">
+                        <paper-dropdown-menu on-tap="_ageLabelShow" on-keydown="_tabPress" class="ageOfChild" required="" auto-validate="" error-message="Enter age" label="Child {{_childIndex(index)}}" id="child{{_childID(index)}}">
+                            <paper-listbox id="listBox" class="dropdown-content">
+                                <paper-item>&lt;1</paper-item>
+                                <paper-item>1</paper-item>
+                                <paper-item>2</paper-item>
+                                <paper-item>3</paper-item>
+                                <paper-item>4</paper-item>
+                                <paper-item>5</paper-item>
+                                <paper-item>6</paper-item>
+                                <paper-item>7</paper-item>
+                                <paper-item>8</paper-item>
+                                <paper-item>9</paper-item>
+                                <paper-item>10</paper-item>
+                                <paper-item>11</paper-item>
+                            </paper-listbox>
+                        </paper-dropdown-menu>
+                        <div id="size1{{_childID(index)}}" class="age">Age</div>
+                    </div>
+                </template>
+            </form>
+        </div>
+
+    </template>
+    <script>Polymer({is:"choice-form",properties:{children:{type:Array,notify:!0},countAdult:{type:Number,value:0},countChildren:{type:Number,value:0}},_childID:function(t){return t+=1,this.room+"_"+t},_childIndex:function(t){return t+=1},_displayId:function(t){return t},ready:function(){var t=this.querySelector("#Adult").children[0].children[1].children[1];t.style.height="150px",t.children[0].children[0].style.overflowX="hidden";var e=this.querySelector("#child").children[1].children[1];e.style.height="150px",e.children[0].children[0].style.overflowX="hidden",this.children=[]},_scrollDown:function(){Polymer.RenderStatus.afterNextRender(this,function(){var t=this.domHost.domHost.querySelector("#paperCard");mq?t.scrollTop=t.scrollTop+98:t.scrollTop=t.scrollTop+58})},_onCount:function(){this.children=[];for(var t=this.countChildren,e=0;e<t;e++)this.push("children",{child:""});this._calResultOfRoom()},_removeValid:function(t){this.domHost.querySelector("#errfn").style.display="none"},_ageLabelShow:function(t){var e=t.currentTarget.children[1].children[1];e.style.height="150px",e.children[0].children[0].style.overflowX="hidden";var i=t.currentTarget.id.replace("child","size1");t.currentTarget.invalid=!1,this.$$("#"+i).style.visibility=""},_tabPress:function(t){if(38==t.keyCode||40==t.keyCode){t.currentTarget.invalid=!1;var e=t.currentTarget.id.replace("child","size1");this.$$("#"+e).style.visibility=""}},_calResultOfRoom:function(t){var e=0,i=[],r=[],n=0,o=this.domHost,l=o.roomCount,a=t;if(inputAdultCount=this.domHost.querySelectorAll(".inputAdultCount"),inputChildCount=this.domHost.querySelectorAll(".inputChildCount"),void 0!=inputAdultCount&&void 0!=inputChildCount){for(var s=0;s<l;s++)s!=a&&(i[s]=inputAdultCount[s].value,e=+e+ +i[s]);for(var d=JSON.stringify(e),s=0;s<l;s++)s!=a&&(r[s]=inputChildCount[s].value,n=+n+ +r[s]);var u=JSON.stringify(n)}spanData="","1"===d?spanData=d+" Adult":spanData=d+" Adults","0"===u?spanData+="":"1"===u?spanData=spanData+", "+u+" Child ":spanData=spanData+", "+u+" Children ";var h=l-(t>=0?1:0);1===h?spanData=spanData+" in "+h+" Room":spanData=spanData+" in "+h+" Rooms";var c=this.domHost.domHost.choice;if(c>=0&&c<5)return!1;var p=this.domHost.domHost.querySelector("#menuButton");if(p.domHost.querySelector("#input").value=spanData,mq){var y=this.domHost.domHost.querySelector("#toolbarRoom"),m=domCreate("span"),v=domCreate("div");m.setAttribute("id","spanId"),m.style.color="lightgray",m.innerHtml="1 Adult in 1 Room",m.innerHTML=spanData,v.style.textAlign="center",v.style.position="relative",v.style.height="50px",v.style.marginLeft="30px",v.style.width="250px",v.style.top="-20px",v.style.fontSize="15px",v.style.fontFamily="roboto";var f=y.querySelector("#spanId");v.appendChild(m),null==f?y.appendChild(v):f.innerHTML=spanData}}});</script>
+</dom-module></body></html>

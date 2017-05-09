@@ -1,0 +1,243 @@
+<html><head><link rel="import" href="bower_components/polymer/polymer.html">
+<link rel="import" href="choice-form.html">
+
+</head><body><dom-module id="choice-card">
+    <template>
+        <style>
+             :host {
+                display: block;
+            }
+            
+            .hidden {
+                display: none;
+            }
+            
+            .unhidden {
+                display: block;
+            }
+            
+            #linePaper {
+                width: 92%;
+                float: left;
+            }
+            
+            #paperMaterial {
+                background-color: whitesmoke;
+                width: 500px;
+            }
+            
+            #formDiv {
+                float: left;
+                width: 100%;
+            }
+            
+            #delButton {
+                height: 35px;
+                width: 35px;
+            }
+            
+            #button1 {
+                position: relative;
+            }
+            
+            @media (min-width: 768px) and (max-width: 1024px) {
+                .head {
+                    float: left;
+                    width: 100%;
+                    margin-top: 20px;
+                    margin-left: 2%;
+                }
+                .button {
+                    margin-top: -20px;
+                    padding: 0px 0px;
+                }
+                .buttons {
+                    color: var(--color-for-button);
+                    float: right;
+                    margin-right: 10px;
+                    margin-top: 5px;
+                }
+                #button1 {
+                    color: var(--color-for-button);
+                    float: left;
+                    margin-right: 10px;
+                    margin-top: 20px;
+                    float: clear;
+                }
+                #button2 {
+                    float: left;
+                    display: block;
+                    margin-right: 10px;
+                    margin-top: 20px;
+                }
+                #line {
+                    width: 100%;
+                    border-bottom: 1px solid silver;
+                    height: 12px;
+                    margin: -20px 0 10px 20px;
+                }
+                #line span {
+                    background-color: var(--color-for-room);
+                    padding: 10px;
+                    font-size: 16px;
+                    margin-left: -40px;
+                    color: silver;
+                }
+                #deleteButton {
+                    float: right;
+                    margin-right: 10px;
+                }
+                #linePaper {
+                    width: 85%;
+                    float: left;
+                }
+            }
+            
+            @media (max-width: 767px) {
+                .head {
+                    float: left;
+                    width: 100%;
+                    margin-top: 20px;
+                }
+                .button {
+                    margin-top: -20px;
+                    padding: 0px 0px;
+                }
+                #button1 {
+                    color: var(--color-for-button);
+                    position: initial;
+                    margin-right: 10px;
+                    margin-top: 20px;
+                }
+                #button2 {
+                    display: none;
+                }
+                #deleteButton {
+                    float: right;
+                    margin-top: -50px;
+                }
+                #line {
+                    width: 100%;
+                    border-bottom: 1px solid silver;
+                    height: 12px;
+                    margin: -20px 0 10px -13px;
+                }
+                #line span {
+                    background-color: var(--color-for-room);
+                    padding: 10px;
+                    font-size: 16px;
+                    margin-left: -10px;
+                    color: silver;
+                }
+            }
+            
+            @media (min-width: 1024px) and (max-width:2200px) {
+                .head {
+                    float: left;
+                    width: 100%;
+                    margin-top: 20px;
+                    margin-left: 2%;
+                }
+                .button {
+                    margin-top: -20px;
+                    padding: 0px 0px;
+                }
+                .buttons {
+                    color: var(--color-for-button);
+                    float: right;
+                    margin-right: 10px;
+                    margin-top: 5px;
+                }
+                #button1 {
+                    color: var(--color-for-button);
+                    float: left;
+                    margin-right: 10px;
+                    margin-top: 20px;
+                    float: clear;
+                }
+                #button2 {
+                    float: left;
+                    display: block;
+                    margin-right: 10px;
+                    margin-top: 20px;
+                }
+                #deleteButton {
+                    float: right;
+                    margin-top: -50px;
+                }
+                #line {
+                    width: 100%;
+                    border-bottom: 1px solid silver;
+                    height: 12px;
+                    margin: -20px 0 10px -13px;
+                }
+                #line span {
+                    background-color: var(--color-for-room);
+                    padding: 10px;
+                    font-size: 16px;
+                    margin-left: -10px;
+                    color: silver;
+                }
+            }
+            
+            @media all and (-ms-high-contrast:none) {
+                .head {
+                    float: left;
+                    width: 100%;
+                    margin-top: 20px;
+                }
+                #deleteButton {
+                    float: right;
+                    margin-top: -34px;
+                }
+                .button {
+                    margin-top: 4px;
+                    padding: 0px 0px;
+                }
+                #line {
+                    width: 100%;
+                    border-bottom: 1px solid silver;
+                    height: 12px;
+                    margin: 15px 0 10px -13px;
+                }
+                #line span {
+                    background-color: var(--color-for-room);
+                    padding: 10px;
+                    font-size: 16px;
+                    margin-left: -10px;
+                    color: silver;
+                }
+                #formDiv {
+                    margin-top: -15px;
+                }
+            }
+        </style>
+
+        <paper-material id="paperMaterial">
+            <div id="formDiv">
+                <form is="iron-form" id="form" method="post" action="/form/handler">
+                    <template is="dom-repeat" items="{{ rooms }}">
+                        <div class="head">
+                            <div id="errfn" style="color:red">   </div>
+                            <paper-item id="linePaper" disabled="">
+                                <div id="line"><span>Room# {{_displayIndex(index)}}</span></div>
+                            </paper-item>
+                            <paper-item id="deleteButton" on-keydown="_onkeyPress">
+                                <paper-button toggles="" hidden="[[_isDeleteHidden]]" class="button" on-click="_deleteRoom" id="delButton">
+                                    <img src="trash.svg" height="15px" width="15px">
+                                </paper-button>
+                            </paper-item>
+                        </div>
+                        <choice-form room="{{_displayIndex(index)}}" id="choiceRoom">{{ item.room }}</choice-form>
+                    </template>
+                </form>
+            </div>
+            <div class="buttons">
+                <paper-button id="button1" toggles="" on-tap="_addRoom">Add Room</paper-button>
+                <paper-button id="button2" toggles="" on-click="_doneRoom" hidden$="{{showButton}}">Done</paper-button>
+            </div>
+        </paper-material>
+
+    </template>
+    <script>var idArray=[],childAge=[],totalData=[],roomIdArray=[],roomChildIdArray=[],roomCount,inputAdultCount,inputChildCount;Polymer({is:"choice-card",properties:{rooms:{type:Array,notify:!0},_isDeleteHidden:{type:Boolean,computed:"_lte(rooms.length , 1)"},showButton:{type:Boolean,value:function(){return!!mq}},roomCount:{type:Number,value:0},totalData:{type:Array,notify:!0}},_lte:function(o,r){return o<=r},ready:function(){this.rooms=[],this.idArray=[],this.childAge=[],this.totalData=[],this.roomIdArray=[],this.roomChildIdArray=[],this.roomCount,this.inputChildCount,this.inputAdultCount,this.push("rooms",{room:""}),this.roomCount=this.roomCount+1},_onkeyPress:function(o){var r=o.keyCode;this.roomCount>1&&13===r&&this._deleteRoom(o)},_addRoom:function(){this.roomCount<this.domHost.option.maxRoomCount&&(this.push("rooms",{room:""}),this.push("totalData",{total:""}),this.roomCount=this.roomCount+1,Polymer.RenderStatus.afterNextRender(this,function(){this.domHost.querySelector("#paperCard").scrollTop=this.domHost.querySelector("#paperCard").scrollHeight}))},_displayIndex:function(o){return o+=1},_deleteRoom:function(o){this.splice("rooms",o.model.index,1);var r=this.get(["totalData",o.model.index]),t=this.totalData.indexOf(r);t!=-1&&totalData.splice(t),this.idArray=new Array,0===idArray.length&&this._idCal(),this._idDelCal(o.model.index),idArray.splice(o.model.index,1),console.log(idArray);var i=this.querySelector("#choiceRoom");i._calResultOfRoom(o.model.index),this.roomCount=this.roomCount-1},_idDelCal:function(o){inputChildCount=this.domHost.querySelectorAll(".inputChildCount"),roomChildIdArray=[],roomIdArray=[],roomCount=this.roomCount;for(var r=o+1;r<roomCount;r++){2+ +inputChildCount[r].value;if(null!=this.querySelector("#adult"+r)){roomIdArray[0]=this.querySelector("#adult"+r).id="adult"+(r-1),roomIdArray[1]=this.querySelector("#child"+r).id="child"+(r-1),roomChildIdArray=new Array;for(var t=0;t<inputChildCount[r].value;t++)null!=this.querySelector("#child"+(r+1)+"_"+(t+1))&&(roomChildIdArray[t]=this.querySelector("#child"+(r+1)+"_"+(t+1)).id="child"+r+"_"+(t+1),this.querySelector("#size1"+(r+1)+"_"+(t+1)).id="size1"+r+"_"+(t+1));roomIdArray[2]=roomChildIdArray,roomChildIdArray=new Array}else{roomIdArray[0]=this.querySelector("#adult").id="adult"+(r-1),roomIdArray[1]=this.querySelector("#child").id="child"+(r-1),roomChildIdArray=new Array;for(var t=0;t<inputChildCount[r].value;t++)null!=this.querySelector("#child"+(r+1)+"_"+(t+1))&&(roomChildIdArray[t]=this.querySelector("#child"+(r+1)+"_"+(t+1)).id="child"+r+"_"+(t+1),this.querySelector("#size1"+(r+1)+"_"+(t+1)).id="size1"+r+"_"+(t+1));roomIdArray[2]=roomChildIdArray,roomChildIdArray=new Array}idArray[r]=JSON.stringify(roomIdArray),roomIdArray=new Array}},_idCal:function(){inputChildCount=this.domHost.querySelectorAll(".inputChildCount"),roomChildIdArray=[],roomIdArray=[],roomCount=this.roomCount;for(var o=0;o<roomCount;o++){2+ +inputChildCount[o].value;if(null==this.querySelector("#adult"+o)){roomIdArray[0]=this.querySelector("#adult").id="adult"+o,roomIdArray[1]=this.querySelector("#child").id="child"+o,roomChildIdArray=new Array;for(var r=0;r<inputChildCount[o].value;r++)null!=this.querySelector("#child"+(o+1)+"_"+(r+1))&&(roomChildIdArray[r]=this.querySelector("#child"+(o+1)+"_"+(r+1)).id);roomIdArray[2]=roomChildIdArray,roomChildIdArray=new Array}else{roomIdArray[0]=this.querySelector("#adult"+o).id,roomIdArray[1]=this.querySelector("#child"+o).id,roomChildIdArray=new Array;for(var r=0;r<inputChildCount[o].value;r++)null!=this.querySelector("#child"+(o+1)+"_"+(r+1))&&(roomChildIdArray[r]=this.querySelector("#child"+(o+1)+"_"+(r+1)).id);roomIdArray[2]=roomChildIdArray,roomChildIdArray=new Array}idArray[o]=JSON.stringify(roomIdArray),roomIdArray=new Array}},_doneRoom:function(o){inputAdultCount=this.domHost.querySelectorAll(".inputAdultCount"),inputChildCount=this.domHost.querySelectorAll(".inputChildCount");var r=[],t=[],i=[],e=0,l=0,d=!0;roomC=this.roomCount,roomCount=this.roomCount;for(var u=0;u<roomCount;u++)r[u]=inputAdultCount[u].value,e=+e+ +r[u];e>=this.domHost.option.traveller.minAdultCount&&(d=!1,this.querySelector("#errfn").style.display="block",this.querySelector("#errfn").innerHTML="this is invalid adult count");for(var n=JSON.stringify(e),u=0;u<roomCount;u++)t[u]=inputChildCount[u].value,l=+l+ +t[u];for(var a=JSON.stringify(l),h=!1,u=0;u<roomCount;u++){count=2+ +inputChildCount[u].value,i[0]=inputAdultCount[u].value,i[1]=inputChildCount[u].value,childAge=new Array;for(var s=0;s<inputChildCount[u].value;s++)childAge[s]=this.querySelector("#child"+(u+1)+"_"+(s+1)).value,void 0==childAge[s]&&(d=!1,this.querySelector("#child"+(u+1)+"_"+(s+1)).invalid=!0,this.querySelector("#size1"+(u+1)+"_"+(s+1)).style.visibility="hidden",h||(this.querySelector("#child"+(u+1)+"_"+(s+1)+" input").focus(),this.querySelector("#child"+(u+1)+"_"+(s+1)+" input").blur(),h=!0));i[2]=childAge,totalData[u]=JSON.stringify(i)}var y=this.querySelector("#choiceRoom");if(y._calResultOfRoom(),d){var m=[],C=[],c=[],A=[],p=[],v=this.domHost.choice;if(v>=0&&v<5){var S=this.domHost.querySelector("#adult"+(v+1)+"Room1").getAttribute("count-adult");roomCount=this.domHost.querySelector("#adult"+(v+1)+"Room1").getAttribute("count-room"),r=S.split(","),t=0}for(var u=0;u<roomCount;u++){m[0]=r[u],m[1]="Adult";var f=[];if(f="",m[2]=f,C[0]=t[u],C[1]="Child",childAge=new Array,u<inputChildCount.length)for(var s=0;s<inputChildCount[u].value;s++)childAge[s]=this.querySelector("#child"+(u+1)+"_"+(s+1)).value;c=childAge,C[2]=c,A[0]=m,A[1]=C,p[u]=JSON.stringify(A)}this.domHost.travellersFinalData=p,0===idArray.length&&this._idCal();var q;q="1"===n?n+" Adult ":n+" Adults ","0"===a?q+="":q="1"===a?q+a+" Child ":q+a+" Children ",q=1===roomCount?q+" in "+roomCount+" Room":q+" in "+roomCount+" Rooms";var I=this.domHost.querySelector("#paperCard"),_=this.domHost.querySelector("#needRoom"),g=this.domHost.querySelector("#toolbarRoom");_.textContent="Need more rooms or have children?","visible"!=I.style.visibility&&""!=I.style.visibility||(I.style.visibility="hidden",g.style.visibility="hidden"),this.domHost.doneRoomCardOutput=q}return d}});</script>
+</dom-module></body></html>
